@@ -1,0 +1,51 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>
+      Trending movies
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  @defer (when !isLoading) {
+    <!-- The ion-list or anything else within this defer block will not be rendered until we're not loading our http data inturn saving on bandwidth -->
+    <ion-list>
+      @for (movie of movies; track movie.id) {
+      <ion-item button [routerLink]="['/details', movie.id]">
+        <ion-avatar slot="start">
+         <img [src]="movie.pPath" alt="poster" /> <!-- Width 92 so it's not too big  -->
+        </ion-avatar>
+        <ion-label class="ion-text-wrap">
+          <h3>{{ movie.title }}</h3>
+          <p>{{ movie.releaseYear | date:'y' }}</p>
+        </ion-label>
+        <ion-badge slot="end">{{ movie.rating }}</ion-badge>
+      </ion-item>
+    }@empty {@if (!isLoading) {
+      <ion-item lines="none">
+        <ion-label class="ion-text-center">No movies found</ion-label>
+      </ion-item>
+    }}
+  </ion-list>
+
+  <ion-infinite-scroll (ionInfinite)="loadMore($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data"></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
+} @placeholder {
+    <ion-list>
+      @for (i of dummyArray; track i) {
+        <ion-item>
+          <ion-avatar slot="start">
+            <ion-skeleton-text></ion-skeleton-text>
+          </ion-avatar>
+          <ion-skeleton-text animated style="height: 40px;" />
+        </ion-item>
+      }
+    </ion-list>
+  } @error {
+    <ion-alert header="Error" [message]="error" isOpen="true" [buttons]="['OK']" />
+  } @loading(minimum 1s) {
+    I am transitioning from placeholder to defered logic
+  }
+</ion-content>
